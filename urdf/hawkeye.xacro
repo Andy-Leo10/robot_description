@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Camera Macro -->
+  <xacro:macro name="hawkeye" params="parent_link origin_xyz origin_rpy">
+    <!-- Camera Properties -->
+    <xacro:property name="camera_mass" value="0.1" />
+    <xacro:property name="camera_inertia_ixx" value="0.001" />
+    <xacro:property name="camera_inertia_iyy" value="0.001" />
+    <xacro:property name="camera_inertia_izz" value="0.001" />
+    <xacro:property name="camera_fov" value="1.047" />
+    <xacro:property name="camera_width" value="640" />
+    <xacro:property name="camera_height" value="480" />
+    <xacro:property name="camera_near_clip" value="0.1" />
+    <xacro:property name="camera_far_clip" value="100" />
+
+    <!-- Link - Camera -->
+    <link name="link_camera">
+      <visual>
+        <geometry>
+          <cylinder length="0.1" radius="0.05"/>
+        </geometry>
+        <material name="blue">
+          <color rgba="0.0 0.0 1.0 0.1"/>
+        </material>
+      </visual>
+      <inertial>
+        <mass value="${camera_mass}"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="${camera_inertia_ixx}" ixy="0.0" ixz="0.0" iyy="${camera_inertia_iyy}" iyz="0.0" izz="${camera_inertia_izz}"/>
+      </inertial>
+    </link>
+
+    <!-- Joint - Camera -->
+    <joint name="joint_${parent_link}_camera" type="fixed">
+      <parent link="${parent_link}"/>
+      <child link="link_camera"/>
+      <origin xyz="${origin_xyz}" rpy="${origin_rpy}"/>
+    </joint>
+
+    <gazebo reference="joint_${parent_link}_camera">
+        <preserveFixedJoint>true</preserveFixedJoint>
+    </gazebo>  
+
+    <!-- Gazebo Sensor - Camera -->
+    <gazebo reference="link_camera">
+      <sensor type="camera" name="camera_sensor">
+        <update_rate>30.0</update_rate>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <topic>camera</topic>
+        <camera>
+          <horizontal_fov>${camera_fov}</horizontal_fov>
+          <image>
+            <width>${camera_width}</width>
+            <height>${camera_height}</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>${camera_near_clip}</near>
+            <far>${camera_far_clip}</far>
+          </clip>
+        </camera>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+
+</robot>
